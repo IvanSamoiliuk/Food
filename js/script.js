@@ -72,8 +72,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
   // основная функция, отвечающая за обновление времени
   function setClock(selector, endtime) {
-
-      // получаем элементы, отвечающие за значения таймера
+    // получаем элементы, отвечающие за значения таймера
     const timer = document.querySelector(selector),
       days = timer.querySelector("#days"),
       hours = timer.querySelector("#hours"),
@@ -102,4 +101,53 @@ window.addEventListener("DOMContentLoaded", function () {
   }
 
   setClock(".timer", deadline);
+
+  //================================= MODAL
+  // кнопка открытия окна
+  const modalTrigger = document.querySelectorAll("[data-modal]");
+  // модальное окно
+  const modal = document.querySelector(".modal");
+  // элемент, закрывающий модальное окно (крестик)
+  const modalCloseBtn = document.querySelector("[data-close]");
+
+  // для каждой кнопки добавляем обработчика открытия окна
+  modalTrigger.forEach((btn) => {
+    btn.addEventListener("click", function () {
+      modal.classList.add("show");
+      modal.classList.remove("hide");
+      // Либо вариант с toggle - но тогда назначить класс в верстке
+
+      // Блокировка скролла страницы при открытом модальном окне.
+      document.body.style.overflow = "hidden";
+    });
+  });
+
+  // функция скрытия модального окна
+  function closeModal() {
+    modal.classList.add("hide");
+    modal.classList.remove("show");
+    // Либо вариант с toggle - но тогда назначить класс в верстке
+
+    // Восстановление значения overflow по умолчанию
+    document.body.style.overflow = "";
+  }
+
+  // добавление крестику обработчика закрытия окна
+  modalCloseBtn.addEventListener("click", closeModal);
+
+  // добавление элементу окна обработчика закрытия окна,
+  // если пользователь нажал на пространство вне окна
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+
+  // добавление элементу документа обработчика закрытия окна,
+  // если пользователь нажал клавишу ESC
+  document.addEventListener("keydown", (e) => {
+    if (e.code === "Escape" && modal.classList.contains("show")) {
+      closeModal();
+    }
+  });
 });
