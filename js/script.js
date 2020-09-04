@@ -1,11 +1,10 @@
 window.addEventListener("DOMContentLoaded", function () {
-  //================================ TABS
+  // Tabs
 
   let tabs = document.querySelectorAll(".tabheader__item"),
     tabsContent = document.querySelectorAll(".tabcontent"),
     tabsParent = document.querySelector(".tabheader__items");
 
-  // функция скрывает контент на странице
   function hideTabContent() {
     tabsContent.forEach((item) => {
       item.classList.add("hide");
@@ -16,7 +15,7 @@ window.addEventListener("DOMContentLoaded", function () {
       item.classList.remove("tabheader__item_active");
     });
   }
-  // функция показывает контент на странице
+
   function showTabContent(i = 0) {
     tabsContent[i].classList.add("show", "fade");
     tabsContent[i].classList.remove("hide");
@@ -26,7 +25,6 @@ window.addEventListener("DOMContentLoaded", function () {
   hideTabContent();
   showTabContent();
 
-  // определение нажатого пункта меню и отображение соответствующего ему контента
   tabsParent.addEventListener("click", function (event) {
     const target = event.target;
     if (target && target.classList.contains("tabheader__item")) {
@@ -39,12 +37,10 @@ window.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  //================================= TIMER
+  // Timer
 
-  // дата завершения таймера
   const deadline = "2020-05-11";
 
-  // функция определяет количество оставшегося времени
   function getTimeRemaining(endtime) {
     const t = Date.parse(endtime) - Date.parse(new Date()),
       days = Math.floor(t / (1000 * 60 * 60 * 24)),
@@ -61,7 +57,6 @@ window.addEventListener("DOMContentLoaded", function () {
     };
   }
 
-  // функция добавляет ноль перед однозначным числом
   function getZero(num) {
     if (num >= 0 && num < 10) {
       return "0" + num;
@@ -70,21 +65,16 @@ window.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // основная функция, отвечающая за обновление времени
   function setClock(selector, endtime) {
-    // получаем элементы, отвечающие за значения таймера
     const timer = document.querySelector(selector),
       days = timer.querySelector("#days"),
       hours = timer.querySelector("#hours"),
       minutes = timer.querySelector("#minutes"),
-      seconds = timer.querySelector("#seconds");
-
-    // время обновляется каждую секунду
-    const timeInterval = setInterval(updateClock, 1000);
+      seconds = timer.querySelector("#seconds"),
+      timeInterval = setInterval(updateClock, 1000);
 
     updateClock();
 
-    // функция присваивает элементу значение времени
     function updateClock() {
       const t = getTimeRemaining(endtime);
 
@@ -93,7 +83,6 @@ window.addEventListener("DOMContentLoaded", function () {
       minutes.innerHTML = getZero(t.minutes);
       seconds.innerHTML = getZero(t.seconds);
 
-      // если время закончилось, очищается интервал обновления времени
       if (t.total <= 0) {
         clearInterval(timeInterval);
       }
@@ -102,66 +91,46 @@ window.addEventListener("DOMContentLoaded", function () {
 
   setClock(".timer", deadline);
 
-  //================================= MODAL
-  // кнопка открытия окна
-  const modalTrigger = document.querySelectorAll("[data-modal]");
-  // модальное окно
-  const modal = document.querySelector(".modal");
-  // элемент, закрывающий модальное окно (крестик)
-  const modalCloseBtn = document.querySelector("[data-close]");
+  // Modal
 
-  // для каждой кнопки добавляем обработчика открытия окна
+  const modalTrigger = document.querySelectorAll("[data-modal]"),
+    modal = document.querySelector(".modal"),
+    modalCloseBtn = document.querySelector("[data-close]");
+
   modalTrigger.forEach((btn) => {
     btn.addEventListener("click", openModal);
   });
 
-  // функция отображения модального окна
-  function openModal() {
-    modal.classList.add("show");
-    modal.classList.remove("hide");
-    // Либо вариант с toggle - но тогда назначить класс в верстке
-
-    // Блокировка скролла страницы при открытом модальном окне.
-    document.body.style.overflow = "hidden";
-
-    // убрать открытиe модалки через заданное время,
-    // если пользователь уже самостоятельно открыл модальное окно
-    clearInterval(modalTimerId);
-  }
-
-  // функция скрытия модального окна
   function closeModal() {
     modal.classList.add("hide");
     modal.classList.remove("show");
-    // Либо вариант с toggle - но тогда назначить класс в верстке
-
-    // Восстановление значения overflow по умолчанию
     document.body.style.overflow = "";
   }
 
-  // добавление крестику обработчика закрытия окна
+  function openModal() {
+    modal.classList.add("show");
+    modal.classList.remove("hide");
+    document.body.style.overflow = "hidden";
+    clearInterval(modalTimerId);
+  }
+
   modalCloseBtn.addEventListener("click", closeModal);
 
-  // добавление элементу окна обработчика закрытия окна,
-  // если пользователь нажал на пространство вне окна
   modal.addEventListener("click", (e) => {
     if (e.target === modal) {
       closeModal();
     }
   });
 
-  // добавление элементу документа обработчика закрытия окна,
-  // если пользователь нажал клавишу ESC
   document.addEventListener("keydown", (e) => {
     if (e.code === "Escape" && modal.classList.contains("show")) {
       closeModal();
     }
   });
 
-  // через 3 секунды после открытия автоматически отобразится модальное окно
-  const modalTimerId = setTimeout(openModal, 3000);
+  // const modalTimerId = setTimeout(openModal, 3000);
+  // Закомментировал, чтобы не отвлекало
 
-  // функция отображающая модальное окно при прокрутке в самый низ страницы
   function showModalByScroll() {
     if (
       window.pageYOffset + document.documentElement.clientHeight >=
@@ -171,20 +140,19 @@ window.addEventListener("DOMContentLoaded", function () {
       window.removeEventListener("scroll", showModalByScroll);
     }
   }
-
-  // обработчик, отображающий модалку при скроллинге
   window.addEventListener("scroll", showModalByScroll);
 
   //=============================== CLASSES
 
   // конструктор класса для создания карточек меню
   class MenuCard {
-    constructor(src, alt, title, descr, price, parentSelector) {
+    constructor(src, alt, title, descr, price, parentSelector, ...classes) {
       this.src = src;
       this.alt = alt;
       this.title = title;
       this.descr = descr;
       this.price = price;
+      this.classes = classes;
       this.parent = document.querySelector(parentSelector);
       this.transfer = 27;
       this.changeToUAH();
@@ -199,19 +167,26 @@ window.addEventListener("DOMContentLoaded", function () {
     render() {
       const element = document.createElement("div");
 
+      // если массив classes пустой или в нем нет класса по умолчанию ("menu__item"),
+      // то добавляю этот класс в массив classes
+      if (!this.classes.includes("menu__item")) {
+        this.classes.push("menu__item");
+      }
+
+      // добавляю элементу каждый класс из массива classes
+      this.classes.forEach((className) => element.classList.add(className));
+
       // верстка карточки скопирована из index.html
       element.innerHTML = `
-                <div class="menu__item">
-                    <img src=${this.src} alt=${this.alt}>
-                    <h3 class="menu__item-subtitle">${this.title}</h3>
-                    <div class="menu__item-descr">${this.descr}</div>
-                    <div class="menu__item-divider"></div>
-                    <div class="menu__item-price">
-                        <div class="menu__item-cost">Цена:</div>
-                        <div class="menu__item-total"><span>${this.price}</span> грн/день</div>
-                    </div>
-                </div>
-            `;
+              <img src=${this.src} alt=${this.alt}>
+              <h3 class="menu__item-subtitle">${this.title}</h3>
+              <div class="menu__item-descr">${this.descr}</div>
+              <div class="menu__item-divider"></div>
+              <div class="menu__item-price">
+                  <div class="menu__item-cost">Цена:</div>
+                  <div class="menu__item-total"><span>${this.price}</span> грн/день</div>
+              </div>
+          `;
       this.parent.append(element);
     }
   }
