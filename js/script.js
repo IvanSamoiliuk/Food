@@ -112,15 +112,22 @@ window.addEventListener("DOMContentLoaded", function () {
 
   // для каждой кнопки добавляем обработчика открытия окна
   modalTrigger.forEach((btn) => {
-    btn.addEventListener("click", function () {
-      modal.classList.add("show");
-      modal.classList.remove("hide");
-      // Либо вариант с toggle - но тогда назначить класс в верстке
-
-      // Блокировка скролла страницы при открытом модальном окне.
-      document.body.style.overflow = "hidden";
-    });
+    btn.addEventListener("click", openModal);
   });
+
+  // функция отображения модального окна
+  function openModal() {
+    modal.classList.add("show");
+    modal.classList.remove("hide");
+    // Либо вариант с toggle - но тогда назначить класс в верстке
+
+    // Блокировка скролла страницы при открытом модальном окне.
+    document.body.style.overflow = "hidden";
+
+    // убрать открытиe модалки через заданное время,
+    // если пользователь уже самостоятельно открыл модальное окно
+    clearInterval(modalTimerId);
+  }
 
   // функция скрытия модального окна
   function closeModal() {
@@ -150,4 +157,21 @@ window.addEventListener("DOMContentLoaded", function () {
       closeModal();
     }
   });
+
+  // через 3 секунды после открытия автоматически отобразится модальное окно
+  const modalTimerId = setTimeout(openModal, 3000);
+
+  // функция отображающая модальное окно при прокрутке в самый низ страницы
+  function showModalByScroll() {
+    if (
+      window.pageYOffset + document.documentElement.clientHeight >=
+      document.documentElement.scrollHeight
+    ) {
+      openModal();
+      window.removeEventListener("scroll", showModalByScroll);
+    }
+  }
+
+  // обработчик, отображающий модалку при скроллинге
+  window.addEventListener("scroll", showModalByScroll);
 });
