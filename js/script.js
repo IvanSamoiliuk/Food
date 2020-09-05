@@ -94,8 +94,7 @@ window.addEventListener("DOMContentLoaded", function () {
   // Modal
 
   const modalTrigger = document.querySelectorAll("[data-modal]"),
-    modal = document.querySelector(".modal"),
-    modalCloseBtn = document.querySelector("[data-close]");
+    modal = document.querySelector(".modal");
 
   modalTrigger.forEach((btn) => {
     btn.addEventListener("click", openModal);
@@ -114,10 +113,8 @@ window.addEventListener("DOMContentLoaded", function () {
     clearInterval(modalTimerId);
   }
 
-  modalCloseBtn.addEventListener("click", closeModal);
-
   modal.addEventListener("click", (e) => {
-    if (e.target === modal) {
+    if (e.target === modal || e.target.getAttribute("data-close") == "") {
       closeModal();
     }
   });
@@ -128,7 +125,7 @@ window.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // const modalTimerId = setTimeout(openModal, 3000);
+  const modalTimerId = setTimeout(openModal, 3000);
   // Закомментировал, чтобы не отвлекало
 
   function showModalByScroll() {
@@ -226,7 +223,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
   // объект для хранения сообщений для пользователя
   const message = {
-    loading: "Загрузка...",
+    loading: "img/form/spinner.svg", // спиннер
     success: "Спасибо! Скоро мы с вами свяжемся",
     failure: "Что-то пошло не так...",
   };
@@ -241,12 +238,17 @@ window.addEventListener("DOMContentLoaded", function () {
     form.addEventListener("submit", (e) => {
       e.preventDefault();
 
-      // элемент для показа сообщений пользователю
-      let statusMessage = document.createElement("div");
-      // сообщение о загрузке формы на сервер
+      // элемент для показа пользователю сообщений или спиннера
+      let statusMessage = document.createElement("img");
+      // спиннер
       statusMessage.textContent = message.loading;
-      // добавляю элемент с сообщением на форму
-      form.appendChild(statusMessage);
+      // делаю спиннер по центру
+      statusMessage.style.cssText = `
+                display: block;
+                margin: 0 auto;
+            `;
+      // добавляю спиннер после полей формы
+      form.insertAdjacentElement("afterend", statusMessage);
 
       // запрос
       const request = new XMLHttpRequest();
@@ -274,17 +276,50 @@ window.addEventListener("DOMContentLoaded", function () {
       request.addEventListener("load", () => {
         if (request.status === 200) {
           console.log(request.response);
-          statusMessage.textContent = message.success;
-          // очистка полей формы
+          showThanksModal(message.success);
+          statusMessage.remove();
           form.reset();
-          // удаление элемента, отвечающего за показ сообщений через 2 секунды
-          setTimeout(() => {
-            statusMessage.remove();
-          }, 2000);
         } else {
-          statusMessage.textContent = message.failure;
+          showThanksModal(message.failure);
         }
       });
     });
+  }
+
+  // функция работающая с существующим модальным окном:
+  // скрывает существующий контент в модальном окне и показывает новый
+  function showThanksModal(message) {
+    // элемент с предыдущим контентом
+    const prevModalDialog = document.querySelector(".modal__dialog");
+
+    // скрытие предыдущего контента
+    prevModalDialog.classList.add("hide");
+
+    // отображение модального окна
+    openModal();
+
+    // создание элемента для нового контента
+    const thanksModal = document.createElement("div");
+    // добавление классов как у предыдущего контента
+    thanksModal.classList.add("modal__dialog");
+    // новый контент
+    thanksModal.innerHTML = `
+        <div class="modal__content">
+            <div class="modal__close" data-close>×</div>
+            <div class="modal__title">${message}</div>
+        </div>
+    `;
+
+    // добавление модальному окну элемента с новым контентом
+    document.querySelector(".modal").append(thanksModal);
+
+    // возвращение формы к прежнему состоянию и ее закрытие через 4 секунды:
+    // элемент с новым контентом удаляется, а старый - будет отображаться при новом открытии формы
+    setTimeout(() => {
+      thanksModal.remove();
+      prevModalDialog.classList.add("show");
+      prevModalDialog.classList.remove("hide");
+      closeModal();
+    }, 4000);
   }
 });
