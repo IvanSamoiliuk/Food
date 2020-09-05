@@ -218,4 +218,73 @@ window.addEventListener("DOMContentLoaded", function () {
     21,
     ".menu .container"
   ).render();
+
+  //========================== FORMS
+
+  // элемент формы
+  const forms = document.querySelectorAll("form");
+
+  // объект для хранения сообщений для пользователя
+  const message = {
+    loading: "Загрузка...",
+    success: "Спасибо! Скоро мы с вами свяжемся",
+    failure: "Что-то пошло не так...",
+  };
+
+  // добавляю каждой форме поведение
+  forms.forEach((item) => {
+    postData(item);
+  });
+
+  function postData(form) {
+    // обработчик формы
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      // элемент для показа сообщений пользователю
+      let statusMessage = document.createElement("div");
+      // сообщение о загрузке формы на сервер
+      statusMessage.textContent = message.loading;
+      // добавляю элемент с сообщением на форму
+      form.appendChild(statusMessage);
+
+      // запрос
+      const request = new XMLHttpRequest();
+      request.open("POST", "server.php");
+      request.setRequestHeader(
+        "Content-type",
+        "application/json; charset=utf-8"
+      );
+
+      // объект FormData для отправки на сервер
+      const formData = new FormData(form);
+
+      // преобразование FormData в обычный объект
+      const object = {};
+      formData.forEach(function (value, key) {
+        object[key] = value;
+      });
+      // преобразование обычного объекта в JSON
+      const json = JSON.stringify(object);
+
+      // отправка JSON-объекта на сервер
+      request.send(json);
+
+      // обработчик запроса для события загрузки
+      request.addEventListener("load", () => {
+        if (request.status === 200) {
+          console.log(request.response);
+          statusMessage.textContent = message.success;
+          // очистка полей формы
+          form.reset();
+          // удаление элемента, отвечающего за показ сообщений через 2 секунды
+          setTimeout(() => {
+            statusMessage.remove();
+          }, 2000);
+        } else {
+          statusMessage.textContent = message.failure;
+        }
+      });
+    });
+  }
 });
