@@ -266,23 +266,27 @@ window.addEventListener("DOMContentLoaded", function () {
       formData.forEach(function (value, key) {
         object[key] = value;
       });
-      // преобразование обычного объекта в JSON
-      const json = JSON.stringify(object);
 
-      // отправка JSON-объекта на сервер
-      request.send(json);
-
-      // обработчик запроса для события загрузки
-      request.addEventListener("load", () => {
-        if (request.status === 200) {
-          console.log(request.response);
+      // запрос к серверу
+      fetch("server.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(object),
+      })
+        // обработка ответа от сервера
+        .then((data) => {
+          console.log(data);
           showThanksModal(message.success);
           statusMessage.remove();
-          form.reset();
-        } else {
+        })
+        .catch(() => {
           showThanksModal(message.failure);
-        }
-      });
+        })
+        .finally(() => {
+          form.reset();
+        });
     });
   }
 
