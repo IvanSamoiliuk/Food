@@ -1,10 +1,11 @@
 window.addEventListener("DOMContentLoaded", function () {
-  // Tabs
+  //================================ TABS
 
   let tabs = document.querySelectorAll(".tabheader__item"),
     tabsContent = document.querySelectorAll(".tabcontent"),
     tabsParent = document.querySelector(".tabheader__items");
 
+  // функция скрывает контент на странице
   function hideTabContent() {
     tabsContent.forEach((item) => {
       item.classList.add("hide");
@@ -16,6 +17,7 @@ window.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // функция показывает контент на странице
   function showTabContent(i = 0) {
     tabsContent[i].classList.add("show", "fade");
     tabsContent[i].classList.remove("hide");
@@ -25,6 +27,7 @@ window.addEventListener("DOMContentLoaded", function () {
   hideTabContent();
   showTabContent();
 
+  // определение нажатого пункта меню и отображение соответствующего ему контента
   tabsParent.addEventListener("click", function (event) {
     const target = event.target;
     if (target && target.classList.contains("tabheader__item")) {
@@ -37,10 +40,12 @@ window.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Timer
+  //================================= TIMER
 
+  // дата завершения таймера
   const deadline = "2020-05-11";
 
+  // функция определяет количество оставшегося времени
   function getTimeRemaining(endtime) {
     const t = Date.parse(endtime) - Date.parse(new Date()),
       days = Math.floor(t / (1000 * 60 * 60 * 24)),
@@ -57,6 +62,7 @@ window.addEventListener("DOMContentLoaded", function () {
     };
   }
 
+  // функция добавляет ноль перед однозначным числом
   function getZero(num) {
     if (num >= 0 && num < 10) {
       return "0" + num;
@@ -65,16 +71,20 @@ window.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // основная функция, отвечающая за обновление времени
   function setClock(selector, endtime) {
+    // получаем элементы, отвечающие за значения таймера
     const timer = document.querySelector(selector),
       days = timer.querySelector("#days"),
       hours = timer.querySelector("#hours"),
       minutes = timer.querySelector("#minutes"),
       seconds = timer.querySelector("#seconds"),
+      // время обновляется каждую секунду
       timeInterval = setInterval(updateClock, 1000);
 
     updateClock();
 
+    // функция присваивает элементу текущее значение времени
     function updateClock() {
       const t = getTimeRemaining(endtime);
 
@@ -83,6 +93,7 @@ window.addEventListener("DOMContentLoaded", function () {
       minutes.innerHTML = getZero(t.minutes);
       seconds.innerHTML = getZero(t.seconds);
 
+      // если время закончилось, очищается интервал обновления времени
       if (t.total <= 0) {
         clearInterval(timeInterval);
       }
@@ -91,43 +102,62 @@ window.addEventListener("DOMContentLoaded", function () {
 
   setClock(".timer", deadline);
 
-  // Modal
+  //================================= MODAL
 
-  const modalTrigger = document.querySelectorAll("[data-modal]"),
-    modal = document.querySelector(".modal");
+  // кнопка открытия окна
+  const modalTrigger = document.querySelectorAll("[data-modal]");
+  // модальное окно
+  const modal = document.querySelector(".modal");
 
+  // для каждой кнопки добавляем обработчик открытия окна
   modalTrigger.forEach((btn) => {
     btn.addEventListener("click", openModal);
   });
 
+  // функция скрытия модального окна
   function closeModal() {
     modal.classList.add("hide");
     modal.classList.remove("show");
+    // либо вариант с toggle - но тогда назначить класс в верстке
+
+    // восстановление значения overflow по умолчанию
     document.body.style.overflow = "";
   }
 
+  // функция отображения модального окна
   function openModal() {
     modal.classList.add("show");
     modal.classList.remove("hide");
+    // либо вариант с toggle - но тогда назначить класс в верстке
+
+    // блокировка скролла страницы при открытом модальном окне
     document.body.style.overflow = "hidden";
+
+    // убрать открытиe модалки через заданное время,
+    // если пользователь уже самостоятельно открыл модальное окно
     clearInterval(modalTimerId);
   }
 
+  // добавление элементу окна обработчика закрытия окна,
+  // если пользователь нажал на пространство вне окна или на крестик
   modal.addEventListener("click", (e) => {
     if (e.target === modal || e.target.getAttribute("data-close") == "") {
       closeModal();
     }
   });
 
+  // добавление элементу документа обработчика закрытия окна,
+  // если пользователь нажал клавишу ESC
   document.addEventListener("keydown", (e) => {
     if (e.code === "Escape" && modal.classList.contains("show")) {
       closeModal();
     }
   });
 
-  const modalTimerId = setTimeout(openModal, 3000);
-  // Закомментировал, чтобы не отвлекало
+  // через 30 секунд после открытия автоматически отобразится модальное окно
+  const modalTimerId = setTimeout(openModal, 30000);
 
+  // функция отображающая модальное окно при прокрутке в самый низ страницы
   function showModalByScroll() {
     if (
       window.pageYOffset + document.documentElement.clientHeight >=
@@ -137,6 +167,8 @@ window.addEventListener("DOMContentLoaded", function () {
       window.removeEventListener("scroll", showModalByScroll);
     }
   }
+
+  // обработчик, отображающий модалку при скроллинге
   window.addEventListener("scroll", showModalByScroll);
 
   //=============================== CLASSES
