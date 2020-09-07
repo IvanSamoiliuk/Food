@@ -356,4 +356,75 @@ window.addEventListener("DOMContentLoaded", function () {
       closeModal();
     }, 4000);
   }
+
+  //=============================== SLIDER
+
+  // индекс текущего слайда
+  let slideIndex = 1;
+
+  // все изображения для слайдов
+  const slides = document.querySelectorAll(".offer__slide");
+  // стрелочка <-
+  const prev = document.querySelector(".offer__slider-prev");
+  // стрелочка ->
+  const next = document.querySelector(".offer__slider-next");
+  // элемент, отвечающий за общее количество слайдов
+  const total = document.querySelector("#total");
+  // элемент, отвечающий за номер текущего слайда
+  const current = document.querySelector("#current");
+
+  // инициализация слайдера на странице
+  showSlides(slideIndex);
+
+  // если общее количество слайдов меньше 10, то добавляю перед индексом ноль
+  if (slides.length < 10) {
+    total.textContent = `0${slides.length}`;
+  } else {
+    total.textContent = slides.length;
+  }
+
+  // если индекс текущего слайда становится больше общего количества слайдов,
+  // перехожу на первый слайд
+  function showSlides(n) {
+    if (n > slides.length) {
+      slideIndex = 1;
+    }
+
+    // если индекс текущего слайда становится меньше 1,
+    // перехожу на последний слайд
+    if (n < 1) {
+      slideIndex = slides.length;
+    }
+
+    // скрываю все элемент-слайды на странице
+    slides.forEach((item) => {
+      item.classList.add("hide");
+      item.classList.remove("show");
+    });
+
+    // показываю текущий элемент-слайд
+    slides[slideIndex - 1].classList.add("show");
+    slides[slideIndex - 1].classList.remove("hide");
+
+    // если индекс текущего слайда меньше 10, добавляю ноль перед индексом
+    if (slideIndex < 10) {
+      current.textContent = `0${slideIndex}`;
+    } else {
+      current.textContent = slideIndex;
+    }
+  }
+
+  // функция сдвигающая слайды вправо или влево
+  // в зависимости от переданного аргумента (1 или -1)
+  function plusSlides(n) {
+    showSlides((slideIndex += n));
+  }
+
+  // обработчики событий для стрелок переключения
+  prev.addEventListener("click", function () {
+    plusSlides(-1);
+  });
+  next.addEventListener("click", function () {
+    plusSlides(1);
+  });
 });
