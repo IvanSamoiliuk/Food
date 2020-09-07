@@ -228,7 +228,7 @@ window.addEventListener("DOMContentLoaded", function () {
   // });
 
   axios.get("http://localhost:3000/menu").then((data) => {
-    data.data.forEach(({ img, altimg, title, descr, price, parent }) => {
+    data.data.forEach(({ img, altimg, title, descr, price }) => {
       new MenuCard(
         img,
         altimg,
