@@ -220,33 +220,19 @@ window.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // создание карточек меню
-  new MenuCard(
-    "img/tabs/vegy.jpg",
-    "vegy",
-    'Меню "Фитнес"',
-    'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-    9,
-    ".menu .container"
-  ).render();
-
-  new MenuCard(
-    "img/tabs/post.jpg",
-    "post",
-    'Меню "Постное"',
-    "Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.",
-    14,
-    ".menu .container"
-  ).render();
-
-  new MenuCard(
-    "img/tabs/elite.jpg",
-    "elite",
-    "Меню “Премиум”",
-    "В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!",
-    21,
-    ".menu .container"
-  ).render();
+  // загрузка и отрисовка карточек меню с сервера
+  getResource("http://localhost:3000/menu").then((data) => {
+    data.forEach(({ img, altimg, title, descr, price }) => {
+      new MenuCard(
+        img,
+        altimg,
+        title,
+        descr,
+        price,
+        ".menu .container"
+      ).render();
+    });
+  });
 
   //========================== FORMS
 
@@ -262,10 +248,34 @@ window.addEventListener("DOMContentLoaded", function () {
 
   // добавляю каждой форме поведение
   forms.forEach((item) => {
-    postData(item);
+    bindPostData(item);
   });
 
-  function postData(form) {
+  // отправка данных на сервер
+  const postData = async (url, data) => {
+    let res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: data,
+    });
+
+    return await res.json();
+  };
+
+  // получение данных с сервера
+  async function getResource(url) {
+    let res = await fetch(url);
+
+    if (!res.ok) {
+      throw new Error(`Could not fetch ${url}, status: ${res.status}`);
+    }
+
+    return await res.json();
+  }
+
+  function bindPostData(form) {
     // обработчик формы
     form.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -282,32 +292,14 @@ window.addEventListener("DOMContentLoaded", function () {
       // добавляю спиннер после полей формы
       form.insertAdjacentElement("afterend", statusMessage);
 
-      // запрос
-      const request = new XMLHttpRequest();
-      request.open("POST", "server.php");
-      request.setRequestHeader(
-        "Content-type",
-        "application/json; charset=utf-8"
-      );
-
       // объект FormData для отправки на сервер
       const formData = new FormData(form);
 
-      // преобразование FormData в обычный объект
-      const object = {};
-      formData.forEach(function (value, key) {
-        object[key] = value;
-      });
+      // альтернативное преобразование FormData в JSON
+      const json = JSON.stringify(Object.fromEntries(formData.entries()));
 
-      // запрос к серверу
-      fetch("server.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(object),
-      })
-        // обработка ответа от сервера
+      // запрос к серверу и обработка ответа
+      postData("http://localhost:3000/requests", json)
         .then((data) => {
           console.log(data);
           showThanksModal(message.success);
