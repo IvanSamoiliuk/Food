@@ -181,8 +181,8 @@ window.addEventListener("DOMContentLoaded", function () {
       this.title = title;
       this.descr = descr;
       this.price = price;
-      this.classes = classes;
       this.parent = document.querySelector(parentSelector);
+      this.classes = classes;
       this.transfer = 27;
       this.changeToUAH();
     }
@@ -221,8 +221,14 @@ window.addEventListener("DOMContentLoaded", function () {
   }
 
   // загрузка и отрисовка карточек меню с сервера
-  getResource("http://localhost:3000/menu").then((data) => {
-    data.forEach(({ img, altimg, title, descr, price }) => {
+  // getResource("http://localhost:3000/menu").then((data) => {
+  //   data.forEach(({ img, altimg, title, descr, price, parentSelector }) => {
+  //     new MenuCard(img, altimg, title, descr, price, parentSelector).render();
+  //   });
+  // });
+
+  axios.get("http://localhost:3000/menu").then((data) => {
+    data.data.forEach(({ img, altimg, title, descr, price, parent }) => {
       new MenuCard(
         img,
         altimg,
