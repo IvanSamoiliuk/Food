@@ -364,6 +364,8 @@ window.addEventListener("DOMContentLoaded", function () {
   //
   let offset = 0;
 
+  // главная обертка-слайдер
+  const slider = document.querySelector(".offer__slider");
   // все изображения для слайдов
   const slides = document.querySelectorAll(".offer__slide");
   // стрелочка <-
@@ -406,6 +408,59 @@ window.addEventListener("DOMContentLoaded", function () {
     slide.style.width = width;
   });
 
+  // выставляю свойство position в значение relative,
+  // чтобы во внутренних элементах правильно работало position: absolute
+  slider.style.position = "relative";
+
+  // блок для индикаторов страниц (точек)
+  const indicators = document.createElement("ol");
+  // массив элементов-точек для удобной работы
+  const dots = [];
+  // добавляю стили на месте (если вдруг нет доступа к файлу CSS)
+  indicators.style.cssText = `
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 15;
+        display: flex;
+        justify-content: center;
+        margin-right: 15%;
+        margin-left: 15%;
+        list-style: none;
+    `;
+  // добавляю индикаторы элементу-слайдеру
+  slider.append(indicators);
+
+  // для каждого слайда создаю индикатор-точку с соотв стилями
+  for (let i = 0; i < slides.length; i++) {
+    const dot = document.createElement("li");
+    dot.setAttribute("data-slide-to", i + 1);
+    dot.style.cssText = `
+        box-sizing: content-box;
+        flex: 0 1 auto;
+        width: 30px;
+        height: 6px;
+        margin-right: 3px;
+        margin-left: 3px;
+        cursor: pointer;
+        background-color: #fff;
+        background-clip: padding-box;
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        opacity: .5;
+        transition: opacity .6s ease;
+    `;
+    // для первого слайда индикатор делаю более насыщенным
+    if (i == 0) {
+      dot.style.opacity = 1;
+    }
+    // добавляю элемент-точку в родительский блок
+    indicators.append(dot);
+    // добавляю элемент-точку в массив
+    dots.push(dot);
+  }
+
   next.addEventListener("click", () => {
     // (1) если сдвиг максимальный (последний слайд), то обнуляю значение сдвига (слайд 1)
     // (2) +width.slice(0, width.length - 2) - это числ значение без ед изм (px)
@@ -428,6 +483,8 @@ window.addEventListener("DOMContentLoaded", function () {
     }
 
     addZero();
+
+    selecDot();
   });
 
   prev.addEventListener("click", () => {
@@ -449,6 +506,8 @@ window.addEventListener("DOMContentLoaded", function () {
     }
 
     addZero();
+
+    selecDot();
   });
 
   // функция, добавляющая ноль перед номером слайда, если он меньше 10
@@ -459,4 +518,29 @@ window.addEventListener("DOMContentLoaded", function () {
       current.textContent = slideIndex;
     }
   }
+
+  // функция, которая выделяет выбранный слайд
+  function selecDot() {
+    dots.forEach((dot) => (dot.style.opacity = ".5"));
+    dots[slideIndex - 1].style.opacity = 1;
+  }
+
+  // --- функционал переключения на нужный слайд по клику на точку
+  dots.forEach((dot) => {
+    dot.addEventListener("click", (e) => {
+      // определяю, что выбран именно элемент-точка
+      const slideTo = e.target.getAttribute("data-slide-to");
+
+      // меняю индекс слайда на выбранный с помощью клика на точку
+      slideIndex = slideTo;
+      // меняю сдвиг на нужный до выбранного слайда
+      offset = +width.slice(0, width.length - 2) * (slideTo - 1);
+      // сдвигаю поле к нужному слайду
+      slidesField.style.transform = `translateX(-${offset}px)`;
+
+      addZero();
+
+      selecDot();
+    });
+  });
 });
