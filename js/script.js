@@ -361,6 +361,8 @@ window.addEventListener("DOMContentLoaded", function () {
 
   // индекс текущего слайда
   let slideIndex = 1;
+  //
+  let offset = 0;
 
   // все изображения для слайдов
   const slides = document.querySelectorAll(".offer__slide");
@@ -372,59 +374,89 @@ window.addEventListener("DOMContentLoaded", function () {
   const total = document.querySelector("#total");
   // элемент, отвечающий за номер текущего слайда
   const current = document.querySelector("#current");
+  // обертка-окно для слайдера
+  const slidesWrapper = document.querySelector(".offer__slider-wrapper");
+  // ширина обертки-окна слайдера
+  const width = window.getComputedStyle(slidesWrapper).width;
+  // поле, содержащее все слайды
+  const slidesField = document.querySelector(".offer__slider-inner");
 
-  // инициализация слайдера на странице
-  showSlides(slideIndex);
-
-  // если общее количество слайдов меньше 10, то добавляю перед индексом ноль
+  // добавляю перед общим количеством слайдов (если меньше 10) и текущим слайдом ноль
   if (slides.length < 10) {
     total.textContent = `0${slides.length}`;
+    current.textContent = `0${slideIndex}`;
   } else {
     total.textContent = slides.length;
+    current.textContent = `0${slideIndex}`;
   }
 
-  // если индекс текущего слайда становится больше общего количества слайдов,
-  // перехожу на первый слайд
-  function showSlides(n) {
-    if (n > slides.length) {
+  // всë, в дочерних элементах, что не помещается в ширину обертки-окна,
+  // становится невидимым
+  slidesWrapper.style.overflow = "hidden";
+
+  // ширина равна ширине всех вместе взятых слайдов
+  slidesField.style.width = 100 * slides.length + "%";
+  // все слайды выстраиваю в горизонтальную линию
+  slidesField.style.display = "flex";
+  // анимация сдвигает поле со всеми слайдами
+  slidesField.style.transition = "0.5s all";
+
+  // задаем всем слайдам одинаковую ширину
+  slides.forEach((slide) => {
+    slide.style.width = width;
+  });
+
+  next.addEventListener("click", () => {
+    // (1) если сдвиг максимальный (последний слайд), то обнуляю значение сдвига (слайд 1)
+    // (2) +width.slice(0, width.length - 2) - это числ значение без ед изм (px)
+    if (offset == +width.slice(0, width.length - 2) * (slides.length - 1)) {
+      offset = 0;
+    } else {
+      // если нет, то прибавляю еще одну ширину окна у сдвигу (offset)
+      offset += +width.slice(0, width.length - 2);
+    }
+
+    // сдвиг поля влево на значение переменной offset
+    slidesField.style.transform = `translateX(-${offset}px)`;
+
+    // --- для переключения счетчика на странице
+    // если индекс равен количеству слайдов, переприсваиваю значение индекса = 1
+    if (slideIndex == slides.length) {
       slideIndex = 1;
+    } else {
+      slideIndex++;
     }
 
-    // если индекс текущего слайда становится меньше 1,
-    // перехожу на последний слайд
-    if (n < 1) {
+    addZero();
+  });
+
+  prev.addEventListener("click", () => {
+    // если слайд первый, то пререключаю на последний слайд
+    if (offset == 0) {
+      offset = +width.slice(0, width.length - 2) * (slides.length - 1);
+    } else {
+      // если нет, то отнимаю одну ширину окна от сдвига
+      offset -= +width.slice(0, width.length - 2);
+    }
+
+    // сдвиг поля влево на значение переменной offset
+    slidesField.style.transform = `translateX(-${offset}px)`;
+
+    if (slideIndex == 1) {
       slideIndex = slides.length;
+    } else {
+      slideIndex--;
     }
 
-    // скрываю все элемент-слайды на странице
-    slides.forEach((item) => {
-      item.classList.add("hide");
-      item.classList.remove("show");
-    });
+    addZero();
+  });
 
-    // показываю текущий элемент-слайд
-    slides[slideIndex - 1].classList.add("show");
-    slides[slideIndex - 1].classList.remove("hide");
-
-    // если индекс текущего слайда меньше 10, добавляю ноль перед индексом
+  // функция, добавляющая ноль перед номером слайда, если он меньше 10
+  function addZero() {
     if (slideIndex < 10) {
       current.textContent = `0${slideIndex}`;
     } else {
       current.textContent = slideIndex;
     }
   }
-
-  // функция сдвигающая слайды вправо или влево
-  // в зависимости от переданного аргумента (1 или -1)
-  function plusSlides(n) {
-    showSlides((slideIndex += n));
-  }
-
-  // обработчики событий для стрелок переключения
-  prev.addEventListener("click", function () {
-    plusSlides(-1);
-  });
-  next.addEventListener("click", function () {
-    plusSlides(1);
-  });
 });
