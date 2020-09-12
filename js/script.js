@@ -461,14 +461,19 @@ window.addEventListener("DOMContentLoaded", function () {
     dots.push(dot);
   }
 
+  // функция для удаления текстовых фрагментов в размерах (5px, 10em,... )
+  function deleteNotDigits(str) {
+    return +str.replace(/\D/g, "");
+  }
+
   next.addEventListener("click", () => {
     // (1) если сдвиг максимальный (последний слайд), то обнуляю значение сдвига (слайд 1)
     // (2) +width.slice(0, width.length - 2) - это числ значение без ед изм (px)
-    if (offset == +width.slice(0, width.length - 2) * (slides.length - 1)) {
+    if (offset == deleteNotDigits(width) * (slides.length - 1)) {
       offset = 0;
     } else {
       // если нет, то прибавляю еще одну ширину окна у сдвигу (offset)
-      offset += +width.slice(0, width.length - 2);
+      offset += deleteNotDigits(width);
     }
 
     // сдвиг поля влево на значение переменной offset
@@ -490,10 +495,10 @@ window.addEventListener("DOMContentLoaded", function () {
   prev.addEventListener("click", () => {
     // если слайд первый, то пререключаю на последний слайд
     if (offset == 0) {
-      offset = +width.slice(0, width.length - 2) * (slides.length - 1);
+      offset = deleteNotDigits(width) * (slides.length - 1);
     } else {
       // если нет, то отнимаю одну ширину окна от сдвига
-      offset -= +width.slice(0, width.length - 2);
+      offset -= deleteNotDigits(width);
     }
 
     // сдвиг поля влево на значение переменной offset
@@ -534,7 +539,7 @@ window.addEventListener("DOMContentLoaded", function () {
       // меняю индекс слайда на выбранный с помощью клика на точку
       slideIndex = slideTo;
       // меняю сдвиг на нужный до выбранного слайда
-      offset = +width.slice(0, width.length - 2) * (slideTo - 1);
+      offset = deleteNotDigits(width) * (slideTo - 1);
       // сдвигаю поле к нужному слайду
       slidesField.style.transform = `translateX(-${offset}px)`;
 
