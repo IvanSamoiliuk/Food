@@ -561,6 +561,21 @@ window.addEventListener("DOMContentLoaded", function () {
   let weight;
   let age;
 
+  // если в LS уже есть сохраненные данные, то беру данные оттуда,
+  // если их там нет, то уст-ю знач по умолчанию и сохраняю в LS
+  if (localStorage.getItem("sex")) {
+    sex = localStorage.getItem("sex");
+  } else {
+    sex = "female";
+    localStorage.setItem("sex", "female");
+  }
+  if (localStorage.getItem("ratio")) {
+    ratio = localStorage.getItem("ratio");
+  } else {
+    ratio = 1.375;
+    localStorage.setItem("ratio", 1.375);
+  }
+
   // функция, вычисляющая результат на данных формы (статических и динамических)
   function calcTotal() {
     // проверка, что есть все данные
@@ -583,20 +598,46 @@ window.addEventListener("DOMContentLoaded", function () {
   // вызов функции расчета, чтобы изменить то, что в верстке на '_____'
   calcTotal();
 
+  // функция, уст класс активности выбранным кнопкам на основе данных в LS
+  function initLocalSettings(selector, activeClass) {
+    const elements = document.querySelectorAll(selector);
+
+    elements.forEach((elem) => {
+      elem.classList.remove(activeClass);
+      if (elem.getAttribute("id") === localStorage.getItem("sex")) {
+        elem.classList.add(activeClass);
+      }
+      if (elem.getAttribute("data-ratio") === localStorage.getItem("ratio")) {
+        elem.classList.add(activeClass);
+      }
+    });
+  }
+
+  // устаналиваю подсветку выбранного набора кнопок-значений
+  initLocalSettings("#gender div", "calculating__choose-item_active");
+  initLocalSettings(
+    ".calculating__choose_big div",
+    "calculating__choose-item_active"
+  );
+
   // функция для получения статических с нажатых кнопок (информация в них уже забита)
-  function getStaticInformation(parentSelector, activeClass) {
+  function getStaticInformation(selector, activeClass) {
     // получаем все кнопки на основе родителя
-    const elements = document.querySelectorAll(`${parentSelector} div`);
+    const elements = document.querySelectorAll(`${selector}`);
 
     // обработчик: если есть атрибут 'data-ratio' (есть только у физ активности),
     // значит, это элементы из этой группы;
-    // если нет атрибута, значит это группа выбора пола
+    // если нет атрибута, значит это группа выбора половой принадлежности
     elements.forEach((elem) => {
       elem.addEventListener("click", (e) => {
         if (e.target.getAttribute("data-ratio")) {
           ratio = +e.target.getAttribute("data-ratio");
+          // запись данных в LS
+          localStorage.setItem("ratio", +e.target.getAttribute("data-ratio"));
         } else {
           sex = e.target.getAttribute("id");
+          // запись данных в LS
+          localStorage.setItem("sex", e.target.getAttribute("id"));
         }
 
         // добавляю класс активности (подсветка нажатой кнопки)
@@ -612,9 +653,9 @@ window.addEventListener("DOMContentLoaded", function () {
   }
 
   // для дефолтной подсветки
-  getStaticInformation("#gender", "calculating__choose-item_active");
+  getStaticInformation("#gender div", "calculating__choose-item_active");
   getStaticInformation(
-    ".calculating__choose_big",
+    ".calculating__choose_big div",
     "calculating__choose-item_active"
   );
 
@@ -625,6 +666,12 @@ window.addEventListener("DOMContentLoaded", function () {
 
     // обработчик выбранного инпута на основе id
     input.addEventListener("input", () => {
+      // проверка введ данных на присутствие 'не чисел' и подсветка этих полей
+      if (input.value.match(/\D/g)) {
+        input.style.border = "1px solid red";
+      } else {
+        input.style.border = "none";
+      }
       switch (input.getAttribute("id")) {
         // присваиваем переменным для расчета значение из поля ввода
         case "height":
