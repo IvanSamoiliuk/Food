@@ -1,8 +1,5 @@
-function timer() {
+function timer(timerId, deadline) {
   //================================= TIMER
-
-  // дата завершения таймера
-  const deadline = "2020-05-11";
 
   // функция определяет количество оставшегося времени
   function getTimeRemaining(endtime) {
@@ -59,7 +56,7 @@ function timer() {
     }
   }
 
-  setClock(".timer", deadline);
+  setClock(timerId, deadline);
 }
 
-module.exports = timer;
+export default timer;

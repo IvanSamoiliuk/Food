@@ -1,8 +1,11 @@
-function forms() {
+import { closeModal, openModal } from "./modal";
+import { postData } from "../services/services";
+
+function forms(formSelector, modalTimerId) {
   //========================== FORMS
 
   // элемент формы
-  const forms = document.querySelectorAll("form");
+  const forms = document.querySelectorAll(formSelector);
 
   // объект для хранения сообщений для пользователя
   const message = {
@@ -15,30 +18,6 @@ function forms() {
   forms.forEach((item) => {
     bindPostData(item);
   });
-
-  // отправка данных на сервер
-  const postData = async (url, data) => {
-    let res = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: data,
-    });
-
-    return await res.json();
-  };
-
-  // получение данных с сервера
-  async function getResource(url) {
-    let res = await fetch(url);
-
-    if (!res.ok) {
-      throw new Error(`Could not fetch ${url}, status: ${res.status}`);
-    }
-
-    return await res.json();
-  }
 
   function bindPostData(form) {
     // обработчик формы
@@ -89,7 +68,7 @@ function forms() {
     prevModalDialog.classList.add("hide");
 
     // отображение модального окна
-    openModal();
+    openModal(".modal", modalTimerId);
 
     // создание элемента для нового контента
     const thanksModal = document.createElement("div");
@@ -112,9 +91,9 @@ function forms() {
       thanksModal.remove();
       prevModalDialog.classList.add("show");
       prevModalDialog.classList.remove("hide");
-      closeModal();
+      closeModal(".modal");
     }, 4000);
   }
 }
 
-module.exports = forms;
+export default forms;

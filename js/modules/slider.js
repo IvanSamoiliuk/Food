@@ -1,4 +1,13 @@
-function slider() {
+function slider({
+  container,
+  slide,
+  nextArrow,
+  prevArrow,
+  totalCounter,
+  currentCounter,
+  wrapper,
+  field,
+}) {
   //=============================== SLIDER
 
   // индекс текущего слайда
@@ -7,23 +16,23 @@ function slider() {
   let offset = 0;
 
   // главная обертка-слайдер
-  const slider = document.querySelector(".offer__slider");
+  const slider = document.querySelector(container);
   // все изображения для слайдов
-  const slides = document.querySelectorAll(".offer__slide");
+  const slides = document.querySelectorAll(slide);
   // стрелочка <-
-  const prev = document.querySelector(".offer__slider-prev");
+  const prev = document.querySelector(prevArrow);
   // стрелочка ->
-  const next = document.querySelector(".offer__slider-next");
+  const next = document.querySelector(nextArrow);
   // элемент, отвечающий за общее количество слайдов
-  const total = document.querySelector("#total");
+  const total = document.querySelector(totalCounter);
   // элемент, отвечающий за номер текущего слайда
-  const current = document.querySelector("#current");
+  const current = document.querySelector(currentCounter);
   // обертка-окно для слайдера
-  const slidesWrapper = document.querySelector(".offer__slider-wrapper");
+  const slidesWrapper = document.querySelector(wrapper);
   // ширина обертки-окна слайдера
   const width = window.getComputedStyle(slidesWrapper).width;
   // поле, содержащее все слайды
-  const slidesField = document.querySelector(".offer__slider-inner");
+  const slidesField = document.querySelector(field);
 
   // добавляю перед общим количеством слайдов (если меньше 10) и текущим слайдом ноль
   if (slides.length < 10) {
@@ -192,4 +201,4 @@ function slider() {
   });
 }
 
-module.exports = slider;
+export default slider;
